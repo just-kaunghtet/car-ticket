@@ -15,6 +15,7 @@ export default function GeneralSetting()
     newPassword: '',
     confirmPassword:'',
   });
+  const [img,setImg]=useState(null);
   const [passwordError, setPasswordError] = useState('');
   const infos=[
     { name: 'Name', placeholder: 'Kyauk Taw Gyi' ,fieldName: "name",type:"text" },
@@ -36,6 +37,15 @@ export default function GeneralSetting()
       ...prevInputs,
       [name]: value,
     }));
+  };
+  const handleImageChange = (e) => {
+    const reader = new FileReader(),
+      files = e.target.files;
+      reader.onload = function () {
+      setImg(reader.result);
+    };
+    reader.readAsDataURL(files[0]);
+    console.log(files[0].name)
   };
   function changeType(fieldName) {
     setPasswordVisibility((prevVisibility) => ({
@@ -88,7 +98,7 @@ export default function GeneralSetting()
             id="file"
             name="photo"
             accept="image/*"
-            onChange={handleChange}
+            onChange={handleImageChange}
             value={formData.photo}
             style={{ display: "none" }}
           />
@@ -118,7 +128,7 @@ export default function GeneralSetting()
   </div>
     ))}
         <div className='grid w-auto h-auto gap-x-2' style={{gridTemplateColumns:"120px 300px 1fr"}}>
-          <span></span><span className='w-60 h-40 bg-gray-300'></span><span></span>
+          <span></span>{img ? <img src={img} alt="Profile" className='w-60 h-auto'/> :<span className='w-60 h-40 bg-gray-300'></span>}<span></span>
         </div>
         <div className='flex flex-col gap-y-5 h-auto' style={{width:"466px"}}>
         <div className='bg-yellow-500 h-10 text-sm font-medium w-full text-left px-5 mt-5 flex items-center justify-between rounded-md shadow-md' onClick={handleClick}>Change Password

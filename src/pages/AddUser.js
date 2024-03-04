@@ -1,5 +1,5 @@
 import React , {useState} from 'react';
-import { Dropdown } from 'primereact/dropdown';
+import Select from 'react-select'
 export default function AddUsers()
 {
   const [passwordVisibility, setPasswordVisibility] = useState({
@@ -16,10 +16,6 @@ export default function AddUsers()
         confirmPassword: '',
         role:'',
       });
-    const roles = [
-        { name: 'Admin' },
-        { name: 'Staff' },
-    ];
     const data=
     ([
         { name: "Username*" ,fieldName:"name",type:"text" },
@@ -35,13 +31,14 @@ export default function AddUsers()
           [name]: value,
         }));
       };
-      const handleRoleChange = (e) => {
-        const {name, value} = e.target;
-        setSelectedRole(value);
-        setUserData((prevInputs) => ({
-          ...prevInputs,
-           [name] : value.name,
-        }));
+      const handleRoleChange = (selectedOption) => {
+        if (selectedOption) {
+          setSelectedRole(selectedOption.value);
+          setUserData((prevInputs) => ({
+            ...prevInputs,
+            role: selectedOption.label,
+          }));
+        }
       };
       const handleClick = (e) => {
         e.preventDefault();
@@ -112,8 +109,18 @@ export default function AddUsers()
                       
                     <div className='grid gap-x-5 px-11 h-11 items-center' style={{gridTemplateColumns:"1fr 300px"}}><span className='text-lg font-semibold'>Role</span>
                     <div className="card flex justify-content-center">
-                        <Dropdown value={selectedRole} onChange={handleRoleChange} options={roles} optionLabel="name" name='role' placeholder="Select a Role" className="w-full h-11 rounded-md items-center border px-3 border-gray-600 md:w-14rem hover:shadow-md" />
-                    </div>
+                    <Select
+                        name="role"
+                        className="react-select w-full h-11 rounded-md"
+                        classNamePrefix="select"
+                        options={[
+                          { value: {selectedRole}, label: "Admin" },
+                          { value: {selectedRole}, label: "Staff" },
+                       ]}
+                        isClearable={false}
+                        onChange={handleRoleChange}
+                      />
+                    </div> 
                     </div> 
                     <div className='flex '>
                     <input className='bg-yellow-500 w-28 rounded-md mx-10 h-11 font-semibold text-base hover:shadow-md hover:cursor-pointer' type='submit' name='Add'/>{passwordError && (

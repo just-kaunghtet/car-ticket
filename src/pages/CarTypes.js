@@ -120,7 +120,7 @@ const CarTypes = () => {
         <div className='w-full h-16 bg-yellow-500'>
         <h1 className='text-white font-bold p-5'>{selectedCarType ? 'Update Car Type' : 'Create Car Types'}</h1>
         </div>
-        <div className="my-3 px-5 w-full flex justify-around items-center">
+        <div className="my-5 px-5 w-full flex justify-around items-center">
           <label className="mr-2 text-lg">New Car Name:</label>
           <input
             className='h-11 px-3 rounded-md'
@@ -136,7 +136,7 @@ const CarTypes = () => {
           <input
             className='h-11 px-3 rounded-md'
             style={{width:"300px"}} 
-            type="number"
+            type="text"
             value={newCarPrice}
             placeholder='Car Price'
             onChange={(e) => setNewCarPrice(e.target.value)}
