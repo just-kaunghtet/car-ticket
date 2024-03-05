@@ -2,7 +2,7 @@ import React,{useState} from "react";
 import Select from 'react-select'
 export default function UserTable()
 {
-	const [itemsPerPage, setItemsPerPage] = useState(2);
+	const [itemsPerPage, setItemsPerPage] = useState(1);
 	const [currentPage, setCurrentPage] = useState(1);
 	const rows=[
 		{ name: "No" },
