@@ -1,17 +1,37 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 const CarTypes = () => {
-  const [carTypes, setCarTypes] = useState([
-    { id: 1, name: 'Small Car', price: 500 },
-    { id: 2, name: 'Medium Car', price: 1000 },
-    { id: 3, name: 'Large Car', price: 2000 },
-    { id: 4, name: 'Big Car', price: 3000 },
-    { id: 5, name: 'Huge Car', price: 10000 },
-  ]);
+  const [carTypes, setCarTypes] = useState([]);
   const [checkedRows, setCheckedRows] = useState([]);
-  const [newCarName, setNewCarName] = useState('');
+  const [newCarType, setNewCarName] = useState('');
   const [newCarPrice, setNewCarPrice] = useState('');
   const [selectedCarType, setSelectedCarType] = useState(null);
+  useEffect(() => {
+    const fetchCarTypes = async () => {
+      try {
+        const response = await fetch('https://car.cbs.com.mm/api/v1/car-types', 
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer 9|ftV06Ls8tLiLPLJpvv50fABhpiX26pfNWlPGJFmq4ab9ac53',
+          },
+        });
+
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          throw new Error(`Failed to fetch car types. Server responded with ${response.status}: ${errorMessage}`);
+        }
+        const data = await response.json();
+        setCarTypes(data.data);
+      } catch (error) {
+        console.error('Error fetching car types:', error);
+      }
+    };
+
+    fetchCarTypes();
+  }, []);
+
+
   const handleCheckboxChange = (event, id) => {
     const isChecked = event.target.checked;
 
@@ -30,45 +50,122 @@ const CarTypes = () => {
     setCarTypes(updatedCarTypes);
     setCheckedRows([]);
   };
-  const handleAddOrUpdateCarType = (event) => {
-    event.preventDefault();
 
-    // Validate that both name and price are provided
-    if (!newCarName || !newCarPrice) {
+
+  const handleAddOrUpdateCarType = async (event) => {
+    event.preventDefault();
+    if (!newCarType || !newCarPrice) {
       alert('Please enter both name and price.');
       return;
     }
-
-    if (selectedCarType) {
-      // If there is a selected car type, update it
-      const updatedCarTypes = carTypes.map((carType) =>
-        carType.id === selectedCarType.id ? { ...carType, name: newCarName, price: parseInt(newCarPrice) } : carType
-      );
-
-      setCarTypes(updatedCarTypes);
-      setSelectedCarType(null); // Reset selected car type
-    } else {
-      // Otherwise, add a new car type entry
-      const newCarType = {
-        id: carTypes.length + 1, // You can use a more sophisticated ID generation logic
-        name: newCarName,
-        price: parseInt(newCarPrice), // Assuming the price is an integer
-      };
-
-      setCarTypes((prevCarTypes) => [...prevCarTypes, newCarType]);
+  
+    const apiUrl = "https://car.cbs.com.mm/api/v1/car-types";
+    const authHeader = {
+      "Accept": "application/json",
+      "Authorization": "Bearer 9|ftV06Ls8tLiLPLJpvv50fABhpiX26pfNWlPGJFmq4ab9ac53"
+    };
+    
+    const requestBody = `{\r\n  "type": "${newCarType}",\r\n  "price": ${parseInt(newCarPrice)}\r\n}`;
+    try {
+      
+      let response;
+  
+      if (selectedCarType) {
+        const updateUrl = `${apiUrl}/${selectedCarType.id}`;
+        response = await fetch(updateUrl, {
+          method: 'PUT',
+          headers: authHeader,
+          body: JSON.stringify(requestBody)
+        });
+  
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          throw new Error(`Failed to update car type. Server responded with ${response.status}: ${errorMessage}`);
+        }
+  
+        const updatedCarTypes = carTypes.map((carType) =>
+          carType.id === selectedCarType.id ? { ...carType, name: newCarType, price: parseInt(newCarPrice) } : carType
+        );
+  
+        setCarTypes(updatedCarTypes);
+        setSelectedCarType(null);
+      } else {
+        // Add new car type
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: authHeader,
+          body: JSON.stringify(requestBody)
+        });
+  
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          throw new Error(`Failed to add new car type. Server responded with ${response.status}: ${errorMessage}`);
+        }
+  
+        const newCarTypeData = await response.json();
+  
+        setCarTypes((prevCarTypes) => [...prevCarTypes, newCarTypeData]);
+      }
+  
+      setNewCarName('');
+      setNewCarPrice('');
+    } catch (error) {
+      console.error('Error adding/updating car type:', error);
     }
-
-    setNewCarName('');
-    setNewCarPrice('');
   };
+  
+
+
+
+
+
+
+
+  // const handleAddOrUpdateCarType = async (event) => {
+  //   event.preventDefault();
+  //   if (!newCarType || !newCarPrice) {
+  //     alert('Please enter both name and price.');
+  //     return;
+  //   }
+
+  //   if (selectedCarType) {
+  //     const updatedCarTypes = carTypes.map((carType) =>
+  //       carType.id === selectedCarType.id ? { ...carType, name: newCarType, price: parseInt(newCarPrice) } : carType
+  //     );
+
+  //     setCarTypes(updatedCarTypes);
+  //     setSelectedCarType(null); 
+  //   } 
+  //   else 
+  //   {
+  //     const newCar = {
+  //       id: carTypes.length + 1, 
+  //       name: newCarType,
+  //       price: parseInt(newCarPrice), 
+  //     };
+
+  //     setCarTypes((prevCarTypes) => [...prevCarTypes, newCar]);
+  //   }
+
+  //   setNewCarName('');
+  //   setNewCarPrice('');
+  // };
+
+
+
+
+
+
+
+
+
+
 
   const handleEditButtonClick = (carType) => {
-    // Set the selected car type for editing
+    
     setSelectedCarType(carType);
-
-    // Set the form fields with the details of the selected car type
     setNewCarName(carType.name);
-    setNewCarPrice(String(carType.price)); // Convert to string to ensure the input field gets the correct initial value
+    setNewCarPrice(String(carType.price)); 
   };
   return (
     <div className='flex gap-x-10'>
@@ -94,7 +191,7 @@ const CarTypes = () => {
                 />
               </td>
               <td className="px-4 py-2">{carType.id}</td>
-              <td className="px-4 py-2">{carType.name}</td>
+              <td className="px-4 py-2">{carType.type}</td>
               <td className="px-4 py-2">{carType.price}$</td>
               <td className="px-4 py-2 items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 hover:cursor-pointer" onClick={() => handleEditButtonClick(carType)}>
@@ -126,7 +223,7 @@ const CarTypes = () => {
             className='h-11 px-3 rounded-md'
             style={{width:"300px"}} 
             type="text"
-            value={newCarName}
+            value={newCarType}
             placeholder='Car Name'
             onChange={(e) => setNewCarName(e.target.value)}
           />
