@@ -12,13 +12,13 @@ export default function UserTable()
 		{ name: "ရာထူး" },
 		{ name: ""  },
 	  ]
-	const [userData, setUserData] = useState([
+	const userData = [
 		{ no: 1, name: 'Small Car', phone: "500" ,email:"example@gmail.com",role:"Admin"},
 		{ no: 2, name: 'Medium Car', phone: "1000",email:"example@gmail.com",role:"Staff" },
 		{ no: 3, name: 'Large Car', phone: "2000" ,email:"example@gmail.com",role:"Admin"},
 		{ no: 4, name: 'Big Car', phone: "3000",email:"example@gmail.com",role:"Staff" },
 		{ no: 5, name: 'Huge Car', phone: "10000",email:"example@gmail.com",role:"Admin" },
-	  ]);
+	  ];
 	const [searchedData,setSearchedData] =useState([])
 	const [status,setStatus] =useState(false)
 	const [searchText, setSearchText] = useState('');
