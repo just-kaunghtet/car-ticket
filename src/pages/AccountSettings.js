@@ -99,7 +99,7 @@ const passwords=[
           style={{ width: "300px" }}
           type={info.type}
           name={info.fieldName}
-          value={imgname}
+          placeholder={imgname}
           readOnly
         />
         <label className='bg-yellow-500 h-10 text-sm font-medium w-auto px-5 flex items-center justify-center rounded-md hover:cursor-pointer hover:shadow-lg'>Browse
@@ -192,12 +192,12 @@ const passwords=[
                   </div>
               
               )}
-            <input type='submit' className='bg-yellow-500 h-10 w-24 rounded-md text-sm text-center font-medium shadow-md' name='Save' value="Save"/>
+            <input type='submit' className='bg-yellow-500 h-10 w-24 rounded-md text-sm text-center font-medium shadow-md' name='Save'/>
           </div>
           :
           ""}
         <div className='flex flex-col gap-y-5 h-auto' style={{width:"466px"}}>
-        <input type='submit' name='Update' value="Update" className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer'/>
+        <input type='submit' name='Update' className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer'/>
         </div>
       </form>
     </div>

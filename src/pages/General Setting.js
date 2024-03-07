@@ -55,7 +55,7 @@ export default function GeneralSetting()
           style={{ width: "300px" }}
           type={info.type}
           name={info.fieldName}
-          value={imgname}
+          placeholder={imgname}
           readOnly
         />
         <label className='bg-yellow-500 h-10 text-sm font-medium w-auto px-5 flex items-center justify-center rounded-md hover:cursor-pointer hover:shadow-lg'>Browse
