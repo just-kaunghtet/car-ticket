@@ -96,7 +96,7 @@ export default function GeneralSetting()
           <span></span>{img ? <img src={img} alt="Profile" className='w-60 h-auto'/> :<span className='w-60 h-40 bg-gray-300'></span>}<span></span>
         </div>
         <div className='flex flex-col pl-32 gap-y-5 h-auto' style={{width:"466px"}}>
-        <input type='submit' name='Update' className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer'/>
+        <input type='submit' name='Update' className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer' value='Save'/>
         </div>
       </form>
     </div>
