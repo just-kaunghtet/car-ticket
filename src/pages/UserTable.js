@@ -22,6 +22,7 @@ export default function UserTable()
 	const [searchedData,setSearchedData] =useState([])
 	const [status,setStatus] =useState(false)
 	const [searchText, setSearchText] = useState('');
+
 	const handleSearch = (e) => {
 		const searchText = e.target.value.toLowerCase();
 		setSearchText(searchText);

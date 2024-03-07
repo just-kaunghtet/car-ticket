@@ -296,7 +296,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"type\" : \"Mdeium Car\",\r\n    \"price\" : 500\r\n}",
+							"raw": "{\r\n    \"type\" : \"Medium Car\",\r\n    \"price\" : 500\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -338,7 +338,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"type\" : \"Mdeium Car\",\r\n    \"price\" : 500\r\n}",
+							"raw": "{\r\n    \"type\" : \"Medium Car\",\r\n    \"price\" : 500\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

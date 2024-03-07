@@ -5,6 +5,7 @@ const CarTypes = () => {
   const [newCarType, setNewCarName] = useState('');
   const [newCarPrice, setNewCarPrice] = useState('');
   const [selectedCarType, setSelectedCarType] = useState(null);
+  const authToken="Bearer 2|iwC287FSvVYNwA6GC6JMGDixXuN21Dc4Zf6OBLm140ab9546"
   useEffect(() => {
     const fetchCarTypes = async () => {
       try {
@@ -13,7 +14,7 @@ const CarTypes = () => {
           method: 'GET',
           headers: {
             Accept: 'application/json',
-            Authorization: 'Bearer 9|ftV06Ls8tLiLPLJpvv50fABhpiX26pfNWlPGJFmq4ab9ac53',
+            Authorization: authToken,
           },
         });
 
@@ -23,6 +24,7 @@ const CarTypes = () => {
         }
         const data = await response.json();
         setCarTypes(data.data);
+        console.log(data);
       } catch (error) {
         console.error('Error fetching car types:', error);
       }
@@ -50,76 +52,65 @@ const CarTypes = () => {
     setCarTypes(updatedCarTypes);
     setCheckedRows([]);
   };
-
-
   const handleAddOrUpdateCarType = async (event) => {
     event.preventDefault();
     if (!newCarType || !newCarPrice) {
       alert('Please enter both name and price.');
       return;
     }
-  
-    const apiUrl = "https://car.cbs.com.mm/api/v1/car-types";
+
+    const apiUrl = 'https://car.cbs.com.mm/api/v1/car-types';
     const authHeader = {
-      "Accept": "application/json",
-      "Authorization": "Bearer 9|ftV06Ls8tLiLPLJpvv50fABhpiX26pfNWlPGJFmq4ab9ac53"
+      Accept: 'application/json',
+      Authorization: authToken , // Replace YOUR_AUTH_TOKEN with your actual token
     };
+
     
-    const requestBody = `{\r\n  "type": "${newCarType}",\r\n  "price": ${parseInt(newCarPrice)}\r\n}`;
+
     try {
-      
-      let response;
-  
+      const carTypeData = {
+        type: newCarType,
+        price: newCarPrice.toString(),
+      };
       if (selectedCarType) {
+        console.log(selectedCarType)
         const updateUrl = `${apiUrl}/${selectedCarType.id}`;
-        response = await fetch(updateUrl, {
+        const updateResponse = await fetch(updateUrl, {
           method: 'PUT',
-          headers: authHeader,
-          body: JSON.stringify(requestBody)
+          headers: {
+            ...authHeader,
+            'Content-Type': 'application/json',
+          },
+          body:  JSON.stringify(carTypeData),
         });
-  
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          throw new Error(`Failed to update car type. Server responded with ${response.status}: ${errorMessage}`);
+        console.log(JSON.stringify(carTypeData))
+
+        if (!updateResponse.ok) {
+          throw new Error(`Failed to update car type. Server responded with ${updateResponse.status}`);
         }
-  
-        const updatedCarTypes = carTypes.map((carType) =>
-          carType.id === selectedCarType.id ? { ...carType, name: newCarType, price: parseInt(newCarPrice) } : carType
-        );
-  
-        setCarTypes(updatedCarTypes);
-        setSelectedCarType(null);
       } else {
-        // Add new car type
-        response = await fetch(apiUrl, {
+       
+        const response = await fetch('https://car.cbs.com.mm/api/v1/car-types', 
+        {
           method: 'POST',
-          headers: authHeader,
-          body: JSON.stringify(requestBody)
+          headers: {
+            'Content-type': 'application/json',
+            ...authHeader,
+          },
+          body: JSON.stringify(carTypeData)
         });
-  
+        console.log(JSON.stringify(carTypeData))
         if (!response.ok) {
-          const errorMessage = await response.text();
-          throw new Error(`Failed to add new car type. Server responded with ${response.status}: ${errorMessage}`);
+          throw new Error(`Failed to create car type. Server responded with ${response.status}`);
         }
-  
-        const newCarTypeData = await response.json();
-  
-        setCarTypes((prevCarTypes) => [...prevCarTypes, newCarTypeData]);
       }
-  
       setNewCarName('');
       setNewCarPrice('');
+      setSelectedCarType(null);
     } catch (error) {
-      console.error('Error adding/updating car type:', error);
+      console.error('Error updating/creating car type:', error);
     }
   };
-  
-
-
-
-
-
-
 
   // const handleAddOrUpdateCarType = async (event) => {
   //   event.preventDefault();
@@ -140,7 +131,7 @@ const CarTypes = () => {
   //   {
   //     const newCar = {
   //       id: carTypes.length + 1, 
-  //       name: newCarType,
+  //       type: newCarType,
   //       price: parseInt(newCarPrice), 
   //     };
 
@@ -152,15 +143,6 @@ const CarTypes = () => {
   // };
 
 
-
-
-
-
-
-
-
-
-
   const handleEditButtonClick = (carType) => {
     
     setSelectedCarType(carType);
@@ -170,7 +152,7 @@ const CarTypes = () => {
   return (
     <div className='flex gap-x-10'>
       <div>
-      <table className="text-center overflow-hidden rounded-lg shadow-lg" style={{ width: "500px", height: "250px" }}>
+      <table className="text-center overflow-hidden rounded-lg shadow-lg h-auto" style={{ width: "500px"}}>
         <thead>
           <tr className="bg-yellow-500 text-white">
             <th className="px-4 py-2"></th>
