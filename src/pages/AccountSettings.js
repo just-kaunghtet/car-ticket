@@ -5,6 +5,8 @@ export default function AccountSetting()
     name: '',
     emailaddress: '',
     photo: '',
+    oldPassword:'',
+    newPassword:'',
   });
   const [img,setImg]=useState(null);
   const [imgname,setImgname]=useState("");
@@ -190,12 +192,12 @@ const passwords=[
                   </div>
               
               )}
-            <input type='submit' className='bg-yellow-500 h-10 w-24 rounded-md text-sm text-center font-medium shadow-md' name='Save'/>
+            <input type='submit' className='bg-yellow-500 h-10 w-24 rounded-md text-sm text-center font-medium shadow-md' name='Save' value="Save"/>
           </div>
           :
           ""}
         <div className='flex flex-col gap-y-5 h-auto' style={{width:"466px"}}>
-        <input type='submit' name='Update' className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer'/>
+        <input type='submit' name='Update' value="Update" className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer'/>
         </div>
       </form>
     </div>
