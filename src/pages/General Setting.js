@@ -51,7 +51,7 @@ export default function GeneralSetting()
     {info.fieldName === "photo" ? (
       <div className='col-span-2 flex items-center justify-start gap-x-2'>
         <input
-          className='bg-white border border-none outline-none h-11 rounded-md px-2 text-sm font-medium hover:cursor-pointer'
+          className='bg-white border outline-none h-11 rounded-md px-2 text-sm font-medium hover:cursor-pointer'
           style={{ width: "300px" }}
           type={info.type}
           name={info.fieldName}
@@ -71,7 +71,7 @@ export default function GeneralSetting()
       </div>
     ) : info.fieldName === "emailaddress" ? (
       <input
-        className='bg-white borderborder-none outline-none h-11 rounded-md px-2 text-sm font-medium'
+        className='bg-white border outline-none h-11 rounded-md px-2 text-sm font-medium'
         type={info.type}
         name={info.fieldName}
         value={formData[info.fieldName]}
@@ -82,7 +82,7 @@ export default function GeneralSetting()
       />
     ) : (
       <input
-        className='bg-white border-none outline-none h-11 rounded-md px-2 text-sm font-medium'
+        className='bg-white border outline-none h-11 rounded-md px-2 text-sm font-medium'
         type={info.type}
         name={info.fieldName}
         value={formData[info.fieldName]}
@@ -96,7 +96,7 @@ export default function GeneralSetting()
           <span></span>{img ? <img src={img} alt="Profile" className='w-60 h-auto'/> :<span className='w-60 h-40 bg-gray-300'></span>}<span></span>
         </div>
         <div className='flex flex-col pl-32 gap-y-5 h-auto' style={{width:"466px"}}>
-        <input type='submit' name='Update' className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer' value='Update'/>
+        <input type='submit' name='Update' className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer'/>
         </div>
       </form>
     </div>

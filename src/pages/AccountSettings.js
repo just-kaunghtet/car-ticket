@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
-export default function AccountSetting()
+import React, { useState,useEffect } from 'react';
+export default function AccountSetting(props)
 {
-  const [formData, setFormData] = useState({
+  const [formDatas, setFormDatas] = useState({
     name: '',
-    emailaddress: '',
-    photo: '',
-    oldPassword:'',
-    newPassword:'',
+    email: '',
+    phone:'',
+    avatar: '',
+  });
+  const [pwChanges, setpwChanges] = useState({
+    old_password: '',
+    password: '',
+    password_confirmation: '',
   });
   const [img,setImg]=useState(null);
   const [imgname,setImgname]=useState("");
   const infos=[
-    { name: 'System Name', placeholder: 'Kyauk Taw Gyi' ,fieldName: "name",type:"text" },
-    { name: 'Email Address', placeholder: 'kyauktawgyi@gmail.com' ,fieldName: "emailaddress", type: "email"},
-    { name: 'System Logo', placeholder: 'photo.jpg' ,fieldName: "photo" ,type:"text"},
+    { name: 'Name', placeholder: 'User' ,fieldName: "name",type:"text" },
+    { name: 'Email Address', placeholder: 'user@gmail.com' ,fieldName: "email", type: "email"},
+    { name: 'Phone', placeholder: '09123456789' ,fieldName: "phone" ,type:"text"},
+    { name: 'Profile', placeholder: 'photo.jpg' ,fieldName: "avatar" ,type:"text"},
+    
 ]
 const [passwordVisibility, setPasswordVisibility] = useState({
     oldPassword: false,
@@ -23,10 +29,34 @@ const [passwordVisibility, setPasswordVisibility] = useState({
 const [status,setStatus]=useState(false)
 const [passwordError, setPasswordError] = useState('');
 const passwords=[
-    { name: "Old Password"  , fieldName:"oldPassword"},
-    { name: "New Password"  , fieldName:"newPassword" },
-    { name: "Confirm Password" , fieldName:"confirmPassword" },
+    { name: "Old Password"  , fieldName:"old_password"},
+    { name: "New Password"  , fieldName:"password" },
+    { name: "Confirm Password" , fieldName:"password_confirmation" },
   ]
+  const fetchProfileData = async () => {
+    try {
+      const response = await fetch('https://car.cbs.com.mm/api/v1/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${props.authToken}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch profile data: ${response.status}`);
+      }
+      const profileData = await response.json();
+      setFormDatas(profileData.data);
+      console.log(profileData.data);
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
 
   function handleClick()
   {
@@ -42,7 +72,14 @@ const passwords=[
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevInputs) => ({
+    setFormDatas((prevInputs) => ({
+      ...prevInputs,
+      [name]: value,
+    }));
+  };
+  const handlePwChange = (e) => {
+    const { name, value } = e.target;
+    setpwChanges((prevInputs) => ({
       ...prevInputs,
       [name]: value,
     }));
@@ -58,47 +95,71 @@ const passwords=[
     };
     reader.readAsDataURL(files[0]);
     setImgname(files[0].name)
-    setFormData((prevInputs) => ({
+    setFormDatas((prevInputs) => ({
       ...prevInputs,
-    [ name ]: imgname ,}));
+      avatar: imgname,}));
+      console.log(formDatas.avatar)
+  };
+ 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+      formData.append('name', formDatas.name);
+      formData.append('email', formDatas.email);
+      formData.append('phone', formDatas.phone);
+      formData.append('avatar', formDatas.avatar);
+      try {
+        const response = await fetch('https://car.cbs.com.mm/api/v1/profile?_method=PUT', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${props.authToken}`,
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify(formDatas),
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to create user: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Error creating user:', error);
+      }
   };
 
-  const handleSubmit = (e) => {
+  const handleSave = (e) => {
     e.preventDefault();
     const hardcodedOldPassword = 'oldpassword';
-      if (formData.oldPassword && formData.oldPassword !== hardcodedOldPassword && formData.newPassword === formData.confirmPassword) {
+      if (formDatas.oldPassword && formDatas.oldPassword !== hardcodedOldPassword && formDatas.newPassword === formDatas.confirmPassword) {
         setPasswordError('Old password is invalid.');
         return;
       }
-      if (formData.newPassword !== formData.confirmPassword && formData.oldPassword === hardcodedOldPassword) {
+      if (formDatas.newPassword !== formDatas.confirmPassword && formDatas.oldPassword === hardcodedOldPassword) {
         setPasswordError('New and Confirm passwords do not match.');
         return;
       }
-      if (formData.oldPassword !== hardcodedOldPassword && formData.newPassword !== formData.confirmPassword ) 
+      if (formDatas.oldPassword !== hardcodedOldPassword && formDatas.newPassword !== formDatas.confirmPassword ) 
       {
         setPasswordError('Old password is invalid and New and Confirm passwords do not match.');
         return;
       }
       setPasswordError('');
-      console.log(formData);
+      console.log(pwChanges);
   };
-
   return(
-    <div className='flex flex-col h-screen gap-y-8 pt-5' style={{width:"538px"}}>
+    <div className='flex flex-col h-auto gap-y-8 pt-5' style={{width:"538px"}}>
       <h1 className=' text-2xl font-bold'>Account Setting</h1>
-      <form className='flex flex-col gap-y-4 w-full h-full' onSubmit={handleSubmit}>
+      <form className='flex flex-col gap-y-4 w-full h-auto' onSubmit={handleSubmit}>
             {infos.map((info) => (
     <div className='grid gap-x-2 items-center w-full' style={{ gridTemplateColumns: "120px 300px 1fr" }}>
     <span className='text-base font-medium'>
       {info.name}
     </span>
-    {info.fieldName === "photo" ? (
+    {info.fieldName === "avatar" ? (
       <div className='col-span-2 flex items-center justify-start gap-x-2'>
         <input
-          className='bg-white border border-none outline-none h-11 rounded-md px-2 text-sm font-medium hover:cursor-pointer'
+          className='bg-white border outline-none h-11 rounded-md px-2 text-sm font-medium hover:cursor-pointer'
           style={{ width: "300px" }}
           type={info.type}
-          name={info.fieldName}
+          // name={info.fieldName}
           placeholder={imgname}
           readOnly
         />
@@ -106,7 +167,7 @@ const passwords=[
           <input
             type="file"
             id="file"
-            name="photo"
+            name="avatar"
             accept="image/*"
             onChange={handleImageChange}
             style={{ display: "none" }}
@@ -115,22 +176,20 @@ const passwords=[
       </div>
     ) : info.fieldName === "emailaddress" ? (
       <input
-        className='bg-white borderborder-none outline-none h-11 rounded-md px-2 text-sm font-medium'
+        className='bg-white border outline-none h-11 rounded-md px-2 text-sm font-medium'
         type={info.type}
         name={info.fieldName}
-        value={formData[info.fieldName]}
-        placeholder={info.placeholder}
+        placeholder={formDatas[info.fieldName]}
         onChange={handleChange}
         pattern="[a-zA-Z0-9._%+-]+@somemail\.com"
         required
       />
     ) : (
       <input
-        className='bg-white border-none outline-none h-11 rounded-md px-2 text-sm font-medium'
+        className='bg-white border outline-none h-11 rounded-md px-2 text-sm font-medium'
         type={info.type}
         name={info.fieldName}
-        value={formData[info.fieldName]}
-        placeholder={info.placeholder}
+        placeholder={formDatas[info.fieldName]}
         onChange={handleChange}
       />
     )}
@@ -139,7 +198,11 @@ const passwords=[
         <div className='grid w-auto h-auto gap-x-2' style={{gridTemplateColumns:"120px 300px 1fr"}}>
           <span></span>{img ? <img src={img} alt="Profile" className='w-60 h-auto'/> :<span className='w-60 h-40 bg-gray-300'></span>}<span></span>
         </div>
-        <div className='bg-yellow-500 h-10 text-sm font-medium w-full text-left px-5 mt-5 flex items-center justify-between rounded-md shadow-md' onClick={handleClick}>Change Password
+        <div className='flex flex-col gap-y-5 h-auto' style={{width:"466px"}}>
+        <input type='submit' name='Update' className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer' value="Update" />
+        </div>
+    </form>
+        <div className='bg-yellow-500 h-11 text-sm font-medium w-full text-left px-5 flex items-center justify-between rounded-md shadow-md' onClick={handleClick}>Change Password
               {status?
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6" >
                     <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
@@ -158,8 +221,8 @@ const passwords=[
               <input 
                 id={`pwField-${password.fieldName}`} 
                 type={passwordVisibility[password.fieldName] ? 'text' : 'password'} 
-                name={password.fieldName} value={formData[password.fieldName]} 
-                className='h-full border-none outline-none ml-2' onChange={handleChange}
+                name={password.fieldName} value={formDatas[password.fieldName]} 
+                className='h-full border-none outline-none ml-2' onChange={handlePwChange}
                 />
               {passwordVisibility[password.fieldName] ?
               <svg 
@@ -192,14 +255,11 @@ const passwords=[
                   </div>
               
               )}
-            <input type='submit' className='bg-yellow-500 h-10 w-24 rounded-md text-sm text-center font-medium shadow-md' name='Save' value='Save'/>
+            <input className='bg-yellow-500 h-10 w-24 rounded-md text-sm text-center font-medium shadow-md hover:cursor-pointer' name='Save' value="Save" onClick={handleSave}/>
           </div>
           :
           ""}
-        <div className='flex flex-col gap-y-5 h-auto' style={{width:"466px"}}>
-        <input type='submit' name='Update' className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer' value='Update'/>
-        </div>
-      </form>
+      
     </div>
   )
 }
