@@ -56,7 +56,7 @@ const passwords=[
 
   useEffect(() => {
     fetchProfileData();
-  }, []);
+  },[]);
 
   function handleClick()
   {
@@ -78,16 +78,43 @@ const passwords=[
     }));
   };
   const handlePwChange = (e) => {
+    e.preventDefault();
     const { name, value } = e.target;
     setpwChanges((prevInputs) => ({
       ...prevInputs,
       [name]: value,
     }));
   };
+  const handlePwSubmit=async(e)=> {
+    e.preventDefault();
+    if (formDatas.newPassword !== formDatas.confirmPassword) {
+      setPasswordError('New and Confirm passwords do not match.');
+      return;
+    }
+    setPasswordError('');
+    console.log(pwChanges);
+    try {
+      const response = await fetch('https://car.cbs.com.mm/api/v1/change-password?_method=PUT', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${props.authToken}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pwChanges),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to change password: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log(responseData);
+    } catch (error) {
+      console.error('Error changing password:', error);
+    }
+  }
 
   const handleImageChange = (e) => {
     const { name } = e.target;
-    console.log(name)
     const reader = new FileReader(),
       files = e.target.files;
       reader.onload = function () {
@@ -97,7 +124,7 @@ const passwords=[
     setImgname(files[0].name)
     setFormDatas((prevInputs) => ({
       ...prevInputs,
-      avatar: imgname,}));
+        [name] : img,}));
       console.log(formDatas.avatar)
   };
  
@@ -123,26 +150,6 @@ const passwords=[
       } catch (error) {
         console.error('Error creating user:', error);
       }
-  };
-
-  const handleSave = (e) => {
-    e.preventDefault();
-    const hardcodedOldPassword = 'oldpassword';
-      if (formDatas.oldPassword && formDatas.oldPassword !== hardcodedOldPassword && formDatas.newPassword === formDatas.confirmPassword) {
-        setPasswordError('Old password is invalid.');
-        return;
-      }
-      if (formDatas.newPassword !== formDatas.confirmPassword && formDatas.oldPassword === hardcodedOldPassword) {
-        setPasswordError('New and Confirm passwords do not match.');
-        return;
-      }
-      if (formDatas.oldPassword !== hardcodedOldPassword && formDatas.newPassword !== formDatas.confirmPassword ) 
-      {
-        setPasswordError('Old password is invalid and New and Confirm passwords do not match.');
-        return;
-      }
-      setPasswordError('');
-      console.log(pwChanges);
   };
   return(
     <div className='flex flex-col h-auto gap-y-8 pt-5' style={{width:"538px"}}>
@@ -202,6 +209,7 @@ const passwords=[
         <input type='submit' name='Update' className='bg-yellow-500 h-10 w-1/3 rounded-md text-sm font-medium shadow-md hover:cursor-pointer' value="Update" />
         </div>
     </form>
+    <form className="flex flex-col gap-y-3" onSubmit={handlePwSubmit}>
         <div className='bg-yellow-500 h-11 text-sm font-medium w-full text-left px-5 flex items-center justify-between rounded-md shadow-md' onClick={handleClick}>Change Password
               {status?
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6" >
@@ -255,11 +263,11 @@ const passwords=[
                   </div>
               
               )}
-            <input className='bg-yellow-500 h-10 w-24 rounded-md text-sm text-center font-medium shadow-md hover:cursor-pointer' name='Save' value="Save" onClick={handleSave}/>
+            <input className='bg-yellow-500 h-10 w-24 rounded-md text-sm text-center font-medium shadow-md hover:cursor-pointer' type='Submit' name='Save' value="Save"/>
           </div>
           :
           ""}
-      
+      </form>
     </div>
   )
 }

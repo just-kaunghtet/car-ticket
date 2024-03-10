@@ -1,9 +1,20 @@
 import React,{useState,useEffect} from "react";
 import Select from 'react-select'
+import UpdateUser from "./UpdateUser";
 export default function UserTable(props)
 {
 	const [itemsPerPage, setItemsPerPage] = useState(5);
 	const [currentPage, setCurrentPage] = useState(1);
+	const [userData,setUserData]=useState([])
+	const [searchedData,setSearchedData] =useState([])
+	const [status,setStatus] =useState(false)
+	const [searchText, setSearchText] = useState('');
+	const [updateData,setUpdateData] =useState([]);
+	const [roles, setRoles] = useState([]);
+	const indexOfLastItem = currentPage * itemsPerPage;
+	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+	const currentItems = status ? searchedData.slice(indexOfFirstItem, indexOfLastItem) : userData.slice(indexOfFirstItem, indexOfLastItem);
+	
 	const rows=[
 		{ name: "No" },
 		{ name: "အမည်" },
@@ -12,11 +23,27 @@ export default function UserTable(props)
 		{ name: "ရာထူး" },
 		{ name: ""  },
 	  ]
-	const [userData,setUserData]=useState([])
-	const [searchedData,setSearchedData] =useState([])
-	const [status,setStatus] =useState(false)
-	const [searchText, setSearchText] = useState('');
-
+	
+	const getRoles = async () => {
+          try {
+            const response = await fetch('https://car.cbs.com.mm/api/v1/roles', {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${props.authToken}` ,
+                'Accept': 'application/json',
+              },
+            });
+      
+            if (!response.ok) {
+              throw new Error(`Failed to get roles: ${response.status}`);
+            }
+      
+            const rolesData = await response.json();
+            setRoles(rolesData.data);
+          } catch (error) {
+            console.error('Error getting roles:', error);
+          }
+        };
 	const fetchData = async () => {
 		try {
 		  const response = await fetch('https://car.cbs.com.mm/api/v1/users', {
@@ -30,7 +57,6 @@ export default function UserTable(props)
 		  if (!response.ok) {
 			throw new Error('Failed to fetch user data');
 		  }
-  
 		  const data = await response.json();
 		  setUserData(data.data);
 		  setSearchedData(data.data);
@@ -41,27 +67,25 @@ export default function UserTable(props)
 		  console.error('Error fetching user data:', error);
 		}
 	  };
-
 	useEffect(() => {
 		fetchData();
-	  }, []);
+		getRoles();
+	},[]);
 
 	const handleSearch = (e) => {
 		const searchText = e.target.value.toLowerCase();
 		setSearchText(searchText);
 		setSearchedData(userData.filter(
 			(user) =>
-			  user.name.toLowerCase().includes(searchText) ||
-			  user.phone.toLowerCase().includes(searchText) ||
-			  user.email.toLowerCase().includes(searchText)
+			  user.name.includes(searchText) ||
+			  user.phone.includes(searchText) ||
+			  user.email.includes(searchText)
 		  )
 		);
 		setStatus(true)
 	  };
  
-	  const [selectedRole, setSelectedRole] = useState(null);
 	  const handleRoleChange = (selectedOption) => {
-		setSelectedRole(selectedOption);
 		setSearchedData(
 		  selectedOption
 			? userData.filter((user) => user.role === selectedOption.label)
@@ -69,15 +93,14 @@ export default function UserTable(props)
 		);
 		setStatus(true)
 	  };
-	const indexOfLastItem = currentPage * itemsPerPage;
-	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-	const currentItems = status ? searchedData.slice(indexOfFirstItem, indexOfLastItem) : userData.slice(indexOfFirstItem, indexOfLastItem);
+
+	
     const handlePageChange = (pageNumber) => {
 		setCurrentPage(pageNumber);
 	};
 	const handleItemsPerPageChange = (selectedOption) => {
         setItemsPerPage(selectedOption.value);
-        setCurrentPage(1); // Reset current page when changing items per page
+        setCurrentPage(1);
     };
 	const handleDeleteUser = async (userId) => {
 		try {
@@ -99,27 +122,11 @@ export default function UserTable(props)
 		  console.error('Error deleting user:', error);
 		}
 	  };
-	  const handleEditUser = async (userId) => {
-		try {
-		  const response = await fetch(`https://car.cbs.com.mm/api/v1/users/${userId}`, {
-			method: 'DELETE',
-			headers: {
-			  'Authorization': `Bearer ${props.authToken}`,
-			  'Accept': 'application/json',
-			},
-		  });
-	
-		  if (!response.ok) {
-			throw new Error(`Failed to delete user: ${response.status}`);
-		  }
-		  console.log('User deleted successfully');
-		  fetchData();
-	
-		} catch (error) {
-		  console.error('Error deleting user:', error);
-		}
+	  const handleEditUser =  (userId) => {
+		const userToUpdate = userData.find((user) => user.id === userId);
+		console.log(userToUpdate)
+		setUpdateData(userToUpdate);
 	  };
-
 
 	return(
         <div className="flex flex-col h-auto" style={{width:"1146px"}}>
@@ -141,10 +148,7 @@ export default function UserTable(props)
                         className="react-select w-full rounded-md"
                         classNamePrefix="select"
 						placeholder="Filter by Role"
-                        options={[
-                          { value: {selectedRole}, label: "Admin" },
-                          { value: {selectedRole}, label: "Staff" },
-                       ]}
+                        options={roles.map(role => ({ value: role.id, label: role.name }))}
                         isClearable={true}
                         onChange={handleRoleChange}
                       />
@@ -205,14 +209,21 @@ export default function UserTable(props)
             <button
                 key={index}
                 onClick={() => handlePageChange(index + 1)}
-                className={`mx-1 px-3 py-1 ${currentPage === index + 1 ? 'bg-yellow-500 text-white' : 'bg-white hover:bg-gray-200'}`}
+                className={`mx-1 px-3 py-1 rounded ${currentPage === index + 1 ? 'bg-yellow-500 text-white' : 'bg-white hover:bg-gray-200'}`}
             >
                 {index + 1}
             </button>
         ))}
     	</div>
 		</div>
-	  	</div>	
+	  	</div>
+		  <UpdateUser 
+			name={updateData.name}
+			email={updateData.email}
+			phone={updateData.phone}
+			role_id={updateData.role}
+			authToken={props.authToken}
+		/>	
     </div>
     )
 }
