@@ -29,7 +29,7 @@ const CarTypes = (props) => {
   };
   useEffect(() => {
     fetchCarTypes();
-  }, []);
+  }, [fetchCarTypes]);
   
   const handleDeleteCarType = async (id) => {
     const apiUrl = `https://car.cbs.com.mm/api/v1/car-types/${id}`;
