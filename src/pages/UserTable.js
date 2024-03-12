@@ -70,7 +70,7 @@ export default function UserTable(props)
 	useEffect(() => {
 		fetchData();
 		getRoles();
-	},[]);
+	},[fetchData,getRoles]);
 
 	const handleSearch = (e) => {
 		const searchText = e.target.value.toLowerCase();
