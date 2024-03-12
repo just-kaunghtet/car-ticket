@@ -56,7 +56,7 @@ const passwords=[
 
   useEffect(() => {
     fetchProfileData();
-  },[fetchProfileData]);
+  },[]);
 
   function handleClick()
   {
