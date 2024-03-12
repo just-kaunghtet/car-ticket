@@ -26,7 +26,7 @@ function UpdateUser (props)
       };
       useEffect(() => {
 		getRoles();
-	},[getRoles]);
+	},[]);
       const handleChange = (e) => {
         const { name, value } = e.target;
         setUpdateData((prevInputs) => ({
