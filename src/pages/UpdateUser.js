@@ -4,7 +4,7 @@ function UpdateUser (props)
 {
 	const [updateData,setUpdateData] =useState([]);
 	const [roles, setRoles] = useState([]);
-      const getRoles = useCallback(async () => {
+      const getRoles = async () => {
         try {
           const response = await fetch('https://car.cbs.com.mm/api/v1/roles', {
             method: 'GET',
@@ -23,7 +23,7 @@ function UpdateUser (props)
         } catch (error) {
           console.error('Error getting roles:', error);
         }
-      });
+      };
       useEffect(() => {
 		getRoles();
 	},[]);
